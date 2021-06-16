@@ -1,3 +1,4 @@
+import random
 from django.db import models
 
 # Create your models here.
@@ -18,3 +19,19 @@ class Tweet(models.Model):
     #* blank means Not required in Django
     #* null means not required in the DB
     # image = models.FileField(upload_to='images/' blank=True, null=True)
+
+    #* Below changes the meta data
+    #* adds decending ordering based on id
+    class Meta:
+        ordering = ['-id']
+
+
+    # This serializes the Tweet so that it can return its content as JSON data
+    # This method is called in the views as  obj.serialize()
+    # It will then return that obj id, content, and likes in a json response
+    def serialize(self):
+        return{
+            "id": self.id,
+            "content": self.content,
+            "likes": random.randint(0, 93)
+        }

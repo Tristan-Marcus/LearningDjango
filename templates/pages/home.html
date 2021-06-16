@@ -5,5 +5,168 @@ Learning Django lel
 {% endblock head_title %}
 
 {% block content %}
-Welcome to Tweetme 2
+
+<div class='row text-center'>
+    <div class='col'>
+        <h1>Welcome to Tweetme 2</h1>
+    </div>
+</div>
+
+<div class='row mb-5'>
+    <div class='col-md-4 mx-auto col-10'>
+    <form class='form' required='required' id='tweet-create-form' method='POST' action='/create-tweet'>
+        {% csrf_token %}
+        <input type='hidden' value='/' name='next' />
+        <textarea class='form-control' name='content' placeholder='Your Tweet...' ></textarea>
+        <button type='submit' class='btn btn-primary'>Tweet</button>
+
+    </form>
+    </div>
+</div>
+
+
+<div class='row' id='tweets'>
+
+</div>
+
+
+<script>
+
+function handleTweetCreateFormSubmit(event) {
+    event.preventDefault()
+    const myForm = event.target
+    const myFormData = new FormData(myForm)
+    const url = myForm.getAttribute("action")
+    const method = myForm.getAttribute("method")
+
+
+    const xhr = new XMLHttpRequest()
+    
+    xhr.responseType = "json"
+
+    xhr.open(method, url)
+
+    // THESE REQUEST HEADERS ENABLE AJAX CALLS
+    xhr.setRequestHeader("HTTP_X_REQUESTED_WITH", "XMLHttpRequest")
+    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest")
+
+    xhr.onload = function() {
+        if (xhr.status === 201) {
+            const newTweet = xhr.response
+            // the line below makes sure the json data returned in the response
+            // does not come back as undefined
+            // If you do not use JSON.parse(), the JSON response will not be what you think it is
+            // However if you set the xhr.responseType = 'json' then you don't have to use this.
+            // const newTweetJson = JSON.parse(newTweet)
+            // const newTweetElement = formatTweet(newTweetJson)
+            const newTweetElement = formatTweet(newTweet)
+            //console.log(newTweetElement)
+            const oldHTML = tweetsContainerElement.innerHTML
+            tweetsContainerElement.innerHTML = newTweetElement + oldHTML
+            myForm.reset()
+        } else if (xhr.status === 400) {
+            const errorJson = xhr.response
+            const contentError = errorJson.content
+            let contentErrorMsg
+            if (contentError) {
+                contentErrorMsg = contentError[0]
+            } else {
+                alert("An error occured. Please try again LOL")
+            }
+            console.log(errorJson)
+        } else if (xhr.status === 500) {
+            alert("SERVER ERROR. OOPSIE")
+        }
+    }
+
+    xhr.onerror = function() {
+        alert("AN ERROR OCCURRED. OH NO!")
+    }
+
+    xhr.send(myFormData)
+
+    const tweetsEl = document.getElementById("tweets")
+    loadTweets(tweetsEl)
+
+    //console.log(myForm.getAttribute("action"))
+}
+
+const tweetCreateFormEl = document.getElementById("tweet-create-form")
+tweetCreateFormEl.addEventListener("submit", handleTweetCreateFormSubmit)
+
+
+const tweetsContainerElement = document.getElementById("tweets")
+
+function loadTweets(tweetsElement) {
+    // Create an object that will be an initialization of an http request
+    const xhr = new XMLHttpRequest()
+
+    // Declare the http method used
+    const method = 'GET'
+
+    // Delcare the url at which the view was routed to
+    const url = "/tweets"
+
+    // Declare the response type. 
+    // Since we are using REST api, it is best to stick with JSON
+    const responseType = "json"
+
+    // Set up the response type
+    xhr.responseType = responseType
+
+    // open the request using the method and url
+    xhr.open(method, url)
+
+    // on page load, execute the following
+    xhr.onload = function() {
+        // this variable is just for readability in the next line
+        const serverResponse = xhr.response
+
+        // The tweets, or listed items are set to the xhr.response.response
+        // where the second response is the name of the value in the data response
+        // inside the view
+        const listedItems = serverResponse.response
+
+        var tweetsStr = ""
+
+        for(let index = 0; index < listedItems.length; index++)
+        {
+            tweetsStr += formatTweet(listedItems[index])
+        }
+
+        tweetsElement.innerHTML = tweetsStr
+    }
+
+    // Send the request
+    xhr.send()
+}
+
+loadTweets(tweetsContainerElement)
+
+
+function handleLike(tweet_id, currentCount) {
+    currentCount = currentCount + 1
+    console.log(tweet_id, currentCount)
+}
+
+
+function likeBtn(tweet) {
+    return "<button class='btn btn-primary' onClick=handleLike(" + tweet.id + "," + tweet.likes + ")>" + tweet.likes + " Likes</button>"
+}
+
+function formatTweet(tweet) {
+
+    const formattedTweet = "<div class='col-12 col-md-10 mx-auto border rounded py-3 mb-5 tweet' id='tweet-id-" 
+                            + tweet.id 
+                            + "'><p>" 
+                            + tweet.content 
+                            + "</p><div class='btn-group'>" 
+                            + likeBtn(tweet)
+                            + "</div></div>"
+
+    return formattedTweet
+}
+
+</script>
+
 {% endblock content %}
