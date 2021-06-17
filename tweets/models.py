@@ -1,13 +1,21 @@
 import random
+from django.conf import settings
 from django.db import models
 
 # Create your models here.
 
+User = settings.AUTH_USER_MODEL
 
 class Tweet(models.Model):
     #* id is created automatically when this (or any) model is saved to the DB
     #* models.AutoField(primary_key=True) is how you would access it
     # id = models.AutoField(primary_key=true)
+
+    #* Giving a user a Foreign Key allowed for them to own more than one tweet
+    #* this line below means that one tweet can only have one user though
+    #* on_delete=models.CASCADE deletes all tweets associated with the user if the user is deleted
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
     
 
     #* This is the text field that will be stored in the DB called content

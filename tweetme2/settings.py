@@ -29,6 +29,9 @@ DEBUG = True
 #! Might want to add the domain later on for which you're going to be hosting this
 ALLOWED_HOSTS = ['localhost']
 
+#* The default route is '/accounts/login/'
+#* here we set LOGIN_URL to our own route
+LOGIN_URL = "/login"
 
 # Application definition
 

@@ -74,6 +74,9 @@ function handleTweetCreateFormSubmit(event) {
                 alert("An error occured. Please try again LOL")
             }
             console.log(errorJson)
+        } else if (xhr.status === 401) {
+            alert("YOU MUST LOG IN TO TWEET")
+            window.location.href = "/login"
         } else if (xhr.status === 500) {
             alert("SERVER ERROR. OOPSIE")
         }

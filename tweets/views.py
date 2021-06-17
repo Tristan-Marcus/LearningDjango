@@ -15,6 +15,27 @@ def home_view(request, *args, **kwargs):
 
 
 def tweet_create_view(request, *args, **kwargs):
+
+    """
+    Up until now, this view has been vanilla Django implementation
+
+    HOWEVER, we can make this less complex and BETTER using the Django REST framework
+
+    It will turn this view into a REST API CRUD (Create, Read, Update, Delete) view.
+    """
+
+    #* Store the user from the request data
+    user = request.user
+
+    # handles authentication for a json request and a regular http request.
+    # This will execute if a tweet creation is attempted without a user attached to it.
+    if not request.user.is_authenticated:
+        # user = None is to make sure the tweet without an authenitcated user will show as None
+        user = None
+        if request.is_ajax():
+            return JsonResponse({}, status=401)
+        return redirect(settings.LOGIN_URL)
+
     # the TweetForm class can be initialized with data
     # in this case, request.POST would be the post data that the form collected
     # OR
@@ -31,7 +52,8 @@ def tweet_create_view(request, *args, **kwargs):
     if form.is_valid():
         obj = form.save(commit=False)
 
-        # do other form related logic
+        #* This is added to associate the tweet obj with a user upon form submission
+        obj.user = user
 
         # save the form to the database
         obj.save()
