@@ -77,6 +77,9 @@ function handleTweetCreateFormSubmit(event) {
         } else if (xhr.status === 401) {
             alert("YOU MUST LOG IN TO TWEET")
             window.location.href = "/login"
+        } else if (xhr.status === 401) {
+            alert("YOU MUST LOG IN TO TWEET")
+            window.location.href = "/login"
         } else if (xhr.status === 500) {
             alert("SERVER ERROR. OOPSIE")
         }
@@ -128,7 +131,7 @@ function loadTweets(tweetsElement) {
         // The tweets, or listed items are set to the xhr.response.response
         // where the second response is the name of the value in the data response
         // inside the view
-        const listedItems = serverResponse.response
+        const listedItems = serverResponse
 
         var tweetsStr = ""
 
