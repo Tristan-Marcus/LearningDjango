@@ -16,6 +16,11 @@ class Tweet(models.Model):
     #* models.AutoField(primary_key=True) is how you would access it
     # id = models.AutoField(primary_key=true)
 
+    #* The parent is a reference to the self model.
+    #* This will be the retweeted tweet
+    #* on_delete=models.SET_NULL will set this parent to null if the original model was deleted
+    parent = models.ForeignKey("self", null=True, on_delete=models.SET_NULL)
+
     #* Giving a user a Foreign Key allowed for them to own more than one tweet
     #* this line below means that one tweet can only have one user though
     #* on_delete=models.CASCADE deletes all tweets associated with the user if the user is deleted
@@ -43,10 +48,14 @@ class Tweet(models.Model):
     class Meta:
         ordering = ['-id']
 
+    @property
+    def is_retweet(self):
+        return self.parent != None
 
     # This serializes the Tweet so that it can return its content as JSON data
     # This method is called in the views as  obj.serialize()
     # It will then return that obj id, content, and likes in a json response
+    #! This can be deleted. It is no longer required since we use serializers
     def serialize(self):
         return{
             "id": self.id,
